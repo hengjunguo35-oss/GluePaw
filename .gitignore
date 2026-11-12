@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# 本地依赖（install.bat 安装到项目内，体积大，不入库）
+libs/
+
+# 运行时数据
+*.log
+instance.lock
+vault.db
+vault.db-*
+key.bin
+
+# 开发预览图（文档里的截图在 docs/images 下，不受影响）
+/preview_*.png
+/crop_*.png
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
