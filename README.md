@@ -59,10 +59,16 @@ GluePaw 的目标是：**记录得够用，泄露得够少**。
 
 ## 快速开始
 
-### 直接下载（推荐）
+### 下载安装（推荐）
 
 到 [Releases](https://github.com/hengjunguo35-oss/GluePaw/releases) 下载
-`GluePaw-1.0.0-Windows-x64.exe`，双击运行即可，**无需安装 Python**，也不用解压。
+`GluePaw-1.0.0-Setup.exe`，双击按向导安装，**无需安装 Python**。
+
+- 默认装到 `%LOCALAPPDATA%\Programs\GluePaw`，不需要管理员权限
+- 自动创建开始菜单快捷方式，可在设置里勾选桌面快捷方式
+- 控制面板 / 设置里可以正常卸载（默认保留历史数据）
+
+不想安装也可以用绿色版 `GluePaw-1.0.0-Windows-x64.exe`，双击即用，不写注册表。
 
 > 首次运行若被 SmartScreen 拦截：点「更多信息」→「仍要运行」。程序未做代码签名。
 
