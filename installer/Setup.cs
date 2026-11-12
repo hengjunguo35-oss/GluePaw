@@ -36,8 +36,13 @@ namespace GluePawSetup
         {
             try
             {
-                report("正在创建安装目录…");
+                report("正在检查目标位置…");
                 Directory.CreateDirectory(dir);
+                // 预检：目标目录必须允许创建 / 删除文件，否则给出明确提示
+                string probe = Path.Combine(
+                    dir, ".gluepaw_probe_" + Guid.NewGuid().ToString("N").Substring(0, 8));
+                Directory.CreateDirectory(probe);
+                Directory.Delete(probe);
 
                 report("正在解压程序文件…");
                 using (Stream s = Assembly.GetExecutingAssembly().GetManifestResourceStream("payload.zip"))
@@ -88,6 +93,11 @@ namespace GluePawSetup
 
                 report("安装完成");
                 return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                try { report("错误：目标位置没有写入权限，无法创建文件。"); } catch { }
+                return false;
             }
             catch (Exception ex)
             {
@@ -342,11 +352,13 @@ namespace GluePawSetup
                 nextButton.Enabled = false;
                 cancelButton.Enabled = false;
                 ShowPage(2);
+                string lastError = "";
                 System.Threading.ThreadPool.QueueUserWorkItem(_ =>
                 {
                     BeginInvoke((Action)(() => statusLabel.Text = "准备安装…"));
                     bool ok = Core.Install(dir, desktopBox.Checked, msg =>
                     {
+                        if (msg.StartsWith("错误")) lastError = msg;
                         try { BeginInvoke((Action)(() => statusLabel.Text = msg)); }
                         catch { }
                     });
@@ -359,7 +371,9 @@ namespace GluePawSetup
                         resultLabel.Text = ok
                             ? "GluePaw 已安装到：\r\n" + dir +
                               "\r\n\r\n完成后可在开始菜单或桌面找到 GluePaw，按 Ctrl + Alt + V 唤出界面。"
-                            : "安装未完成，请重试或检查目标目录的写入权限。";
+                            : "安装未完成。\r\n\r\n" + lastError +
+                              "\r\n\r\n若目标目录没有写入权限：换一个普通目录（如 D:\\GluePaw），" +
+                              "或右键安装程序选择「以管理员身份运行」。";
                         nextButton.Enabled = true;
                         ShowPage(2);
                     }));
