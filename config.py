@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 APP_NAME = "GluePaw"
-APP_VERSION = "0.1.0"
+APP_VERSION = "1.0.0"
 
 # 隐私模式
 DEFAULT_PRIVACY_ON = True
