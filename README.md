@@ -59,7 +59,14 @@ GluePaw 的目标是：**记录得够用，泄露得够少**。
 
 ## 快速开始
 
-### Windows（推荐）
+### 直接下载（推荐）
+
+到 [Releases](https://github.com/hengjunguo35-oss/GluePaw/releases) 下载
+`GluePaw-1.0.0-Windows-x64.exe`，双击运行即可，**无需安装 Python**，也不用解压。
+
+> 首次运行若被 SmartScreen 拦截：点「更多信息」→「仍要运行」。程序未做代码签名。
+
+### 从源码运行
 
 ```bat
 install.bat   :: 把依赖装到项目内的 libs 目录
