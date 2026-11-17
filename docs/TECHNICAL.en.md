@@ -10,6 +10,23 @@ This document is for developers who want to read or modify the source code.
 For user-facing instructions see [README](../README.md); for the privacy design see
 [PRIVACY.md](PRIVACY.md).
 
+## 0. Download & install (browser warnings)
+
+GluePaw is not code-signed, so Chrome / Edge and Windows SmartScreen flag the installer
+as "isn't commonly downloaded" / "can't be verified". These are **trust prompts for
+unsigned binaries, not virus detections**. To proceed:
+
+1. In the browser's download list, click the "…" (three dots) on the item.
+2. Choose "Keep".
+3. When the "Make sure you trust …" dialog appears, open the dropdown next to "Delete".
+4. Choose "Keep anyway".
+
+Then double-click the installer. If it still warns when run, right-click it and choose
+"Run as administrator". If SmartScreen appears during setup, click "More info" → "Run anyway".
+
+> Verify the download with `SHA256SUMS.txt`:
+> `certutil -hashfile GluePaw-1.0.3-Setup.exe SHA256` (built into Windows).
+
 ## 1. Overview
 
 GluePaw is a PySide6 desktop application made of three parts:
