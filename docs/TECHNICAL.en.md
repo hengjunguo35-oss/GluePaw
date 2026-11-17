@@ -16,10 +16,17 @@ GluePaw is not code-signed, so Chrome / Edge and Windows SmartScreen flag the in
 as "isn't commonly downloaded" / "can't be verified". These are **trust prompts for
 unsigned binaries, not virus detections**. To proceed:
 
-1. In the browser's download list, click the "…" (three dots) on the item.
-2. Choose "Keep".
-3. When the "Make sure you trust …" dialog appears, open the dropdown next to "Delete".
-4. Choose "Keep anyway".
+1. In the browser's download list, click the "…" (three dots) on the item, then choose "Keep"
+   ![Click "…" on the download item and choose "Keep"](images/download-01.jpg)
+
+2. When the "Make sure you trust …" dialog appears, open the dropdown next to "Delete"
+   ![Open the dropdown next to "Delete"](images/download-02.jpg)
+
+3. Choose "Keep anyway"
+   ![Choose "Keep anyway"](images/download-03.jpg)
+
+4. The file can now be opened normally
+   !["Open file" is available in the download list](images/download-04.jpg)
 
 Then double-click the installer. If it still warns when run, right-click it and choose
 "Run as administrator". If SmartScreen appears during setup, click "More info" → "Run anyway".
