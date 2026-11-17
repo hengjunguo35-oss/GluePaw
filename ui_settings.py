@@ -36,6 +36,7 @@ class SettingsPage(QWidget):
     auto_clear_toggle_requested = Signal(bool)
     auto_clear_months_changed = Signal(int)
     theme_mode_changed = Signal(str)
+    autostart_toggle_requested = Signal(bool)
     clear_all_requested = Signal()
 
     def __init__(self, repo, pal: dict, parent: QWidget | None = None) -> None:
@@ -177,6 +178,27 @@ class SettingsPage(QWidget):
 
         col.addWidget(self._divider())
 
+        # ---- 开机自启 ----
+        row3 = QHBoxLayout()
+        row3.addWidget(self._title("开机自启"))
+        row3.addStretch(1)
+        self.autostart_switch = QPushButton()
+        self.autostart_switch.setObjectName("Switch")
+        self.autostart_switch.setCheckable(True)
+        self.autostart_switch.clicked.connect(
+            lambda: self.autostart_toggle_requested.emit(self.autostart_switch.isChecked())
+        )
+        row3.addWidget(self.autostart_switch)
+        col.addLayout(row3)
+        col.addWidget(
+            self._hint(
+                "开启后每次开机自动在后台运行。\n"
+                "也可在 Windows 设置 → 应用 → 启动 中看到并开关 GluePaw。"
+            )
+        )
+
+        col.addWidget(self._divider())
+
         # ---- 危险操作 ----
         danger_row = QHBoxLayout()
         clear_btn = QPushButton("清空全部记录")
@@ -254,6 +276,9 @@ class SettingsPage(QWidget):
         _set_switch(self.auto_switch, on)
         self._set_months_enabled(on)
 
+    def set_autostart_state(self, on: bool) -> None:
+        _set_switch(self.autostart_switch, on)
+
     def _set_ttl_enabled(self, enabled: bool) -> None:
         for button in self.ttl_group.buttons():
             button.setEnabled(enabled)
@@ -268,6 +293,7 @@ class SettingsPage(QWidget):
         try:
             _set_switch(self.privacy_switch, self.repo.privacy_on)
             _set_switch(self.auto_switch, self.repo.auto_clear_on)
+            _set_switch(self.autostart_switch, self.repo.autostart_on)
 
             ttl = int(self.repo.ttl)
             if ttl in config.TTL_PRESETS:

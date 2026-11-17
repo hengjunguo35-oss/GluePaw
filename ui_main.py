@@ -292,6 +292,7 @@ class MainWindow(QWidget):
     sensitivity_requested = Signal(str)
     delete_requested = Signal(list)
     theme_mode_requested = Signal(str)
+    autostart_requested = Signal(bool)
 
     def __init__(self, repo, pal: dict, pinned: bool = False, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -433,6 +434,7 @@ class MainWindow(QWidget):
         self.settings_page.ttl_changed.connect(self._apply_ttl)
         self.settings_page.auto_clear_months_changed.connect(self._apply_months)
         self.settings_page.theme_mode_changed.connect(self.theme_mode_requested.emit)
+        self.settings_page.autostart_toggle_requested.connect(self.autostart_requested.emit)
 
         self.footer_widget = QWidget()
         footer = QHBoxLayout(self.footer_widget)

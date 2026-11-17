@@ -45,6 +45,7 @@ GluePaw 的目标是：**记录得够用，泄露得够少**。
 - **置顶模式**（图钉）：窗口浮在最上层，但不会盖住确认弹窗
 - **明暗主题**：跟随系统，也可在设置里强制浅色 / 深色
 - 定期自动清理（1 / 3 / 6 / 12 个月，默认关闭）
+- 开机自启：可在设置里开关，也会出现在 Windows 设置 → 应用 → 启动 中
 - 全程离线，无任何网络请求
 
 ## 截图
@@ -62,13 +63,13 @@ GluePaw 的目标是：**记录得够用，泄露得够少**。
 ### 下载安装（推荐）
 
 到 [Releases](https://github.com/hengjunguo35-oss/GluePaw/releases) 下载
-`GluePaw-1.0.0-Setup.exe`，双击按向导安装，**无需安装 Python**。
+`GluePaw-1.0.1-Setup.exe`，双击按向导安装，**无需安装 Python**。
 
 - 默认装到 `%LOCALAPPDATA%\Programs\GluePaw`，不需要管理员权限
 - 自动创建开始菜单快捷方式，可在设置里勾选桌面快捷方式
 - 控制面板 / 设置里可以正常卸载（默认保留历史数据）
 
-不想安装也可以用绿色版 `GluePaw-1.0.0-Windows-x64.zip`，解压后双击 `GluePaw.exe`，不写注册表。
+不想安装也可以用绿色版 `GluePaw-1.0.1-Windows-x64.zip`，解压后双击 `GluePaw.exe`，不写注册表。
 
 > 首次运行若被 SmartScreen 拦截：点「更多信息」→「仍要运行」。程序未做代码签名。
 
@@ -155,6 +156,7 @@ GluePaw-OpenSource/
 ├── repository.py      # 业务状态机（内存 / 数据库的统一视图）
 ├── sensitive.py       # 敏感内容识别规则
 ├── hotkey_win.py      # 全局热键（Windows）
+├── autostart.py       # 开机自启（注册表 Run 键，与系统设置联动）
 ├── theme.py           # 明暗双色板 + QSS 模板
 ├── icons.py           # 代码绘制的矢量图标
 ├── ui_main.py         # 主窗口、卡片、多选、置顶

@@ -100,6 +100,7 @@ class Vault(QObject):
         self.window.sensitivity_requested.connect(self._toggle_sensitivity)
         self.window.delete_requested.connect(self._delete_items)
         self.window.theme_mode_requested.connect(self._apply_theme_mode)
+        self.window.autostart_requested.connect(self._handle_autostart_toggle)
         self.window.privacy_request_handler = self._handle_privacy_toggle
         self.window.auto_clear_request_handler = self._handle_auto_clear_toggle
         self.window.clear_all_request_handler = self._handle_clear_all
@@ -366,6 +367,15 @@ class Vault(QObject):
         self.repo.store.set_setting("auto_clear_on", True)
         self.window.settings_page.set_auto_clear_state(True)
         self._flash("已开启定期自动清除")
+
+    def _handle_autostart_toggle(self, desired: bool) -> None:
+        ok = self.repo.set_autostart(desired)
+        if ok:
+            self.window.settings_page.set_autostart_state(desired)
+            self._flash("已开启开机自启" if desired else "已关闭开机自启")
+        else:
+            self.window.settings_page.set_autostart_state(self.repo.autostart_on)
+            self._flash("设置失败：无法写入注册表")
 
     def _handle_clear_all(self) -> None:
         if not self._confirm(

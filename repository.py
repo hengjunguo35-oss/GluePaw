@@ -22,6 +22,7 @@ import time
 from dataclasses import dataclass
 from typing import Optional
 
+import autostart
 import config
 from ephemeral import EphemeralStore
 from sensitive import DROP, MASK, classify
@@ -62,6 +63,15 @@ class Repository:
     def theme_mode(self) -> str:
         value = self.store.get_setting("theme_mode", "system")
         return value if value in ("system", "light", "dark") else "system"
+
+    @property
+    def autostart_on(self) -> bool:
+        """是否已注册开机自启动（以注册表 Run 键为准，与系统设置页一致）。"""
+        return autostart.enabled()
+
+    def set_autostart(self, on: bool) -> bool:
+        """写入 / 删除注册表 Run 键。失败返回 False。"""
+        return autostart.set_enabled(on)
 
     @property
     def pin_on_top(self) -> bool:
