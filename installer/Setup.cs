@@ -19,7 +19,7 @@ namespace GluePawSetup
     internal static class Core
     {
         public const string AppName = "GluePaw";
-        public const string AppVersion = "1.0.2";
+        public const string AppVersion = "1.0.3";
         public const string Publisher = "hengjunguo35-oss";
         public const string ExeName = "GluePaw.exe";
 
@@ -205,7 +205,7 @@ namespace GluePawSetup
 
         public MainForm()
         {
-            Text = "GluePaw 1.0.2 安装";
+            Text = "GluePaw 1.0.3 安装";
             Font = new Font("Microsoft YaHei UI", 9F);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;

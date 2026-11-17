@@ -12,6 +12,24 @@ if os.path.isdir(_LIBS) and _LIBS not in sys.path:
 
 import config
 
+# 单实例通道：第二次启动时通过它唤醒已经运行的窗口
+ACTIVATE_CHANNEL = "GluePaw.Activate"
+
+
+def _signal_existing() -> bool:
+    """通知已运行的实例显示窗口。连得上说明有实例在跑。"""
+    from PySide6.QtNetwork import QLocalSocket
+
+    sock = QLocalSocket()
+    sock.connectToServer(ACTIVATE_CHANNEL)
+    if not sock.waitForConnected(400):
+        return False
+    sock.write(b"show")
+    sock.flush()
+    sock.waitForBytesWritten(400)
+    sock.disconnectFromServer()
+    return True
+
 
 def _setup_logging() -> None:
     logging.basicConfig(
@@ -48,9 +66,14 @@ def main() -> int:
     app.setQuitOnLastWindowClosed(False)
     app.setFont(QFont("Microsoft YaHei UI", 10))
 
+    # 已有实例在运行：唤起它的窗口，然后退出
+    if _signal_existing():
+        return 0
+
     lock = QLockFile(str(config.APP_DIR / "instance.lock"))
     lock.setStaleLockTime(0)
     if not lock.tryLock(200):
+        _signal_existing()
         print("GluePaw 已经在运行中。")
         return 0
     app._instance_lock = lock  # 防止被回收
@@ -75,6 +98,23 @@ def main() -> int:
         return 1
 
     vault.start()
+
+    # 监听唤醒请求：双击快捷方式（第二个实例）时把窗口带到前台
+    from PySide6.QtNetwork import QLocalServer
+
+    server = QLocalServer()
+    QLocalServer.removeServer(ACTIVATE_CHANNEL)
+    server.listen(ACTIVATE_CHANNEL)
+
+    def _on_activate() -> None:
+        while server.hasPendingConnections():
+            conn = server.nextPendingConnection()
+            conn.deleteLater()
+        vault.activate_window()
+
+    server.newConnection.connect(_on_activate)
+    app._activate_server = server
+
     code = app.exec()
     vault.shutdown()
     log.info("GluePaw exited")

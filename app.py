@@ -427,6 +427,11 @@ class Vault(QObject):
 
     # ---------- 窗口与托盘 ----------
 
+    def activate_window(self) -> None:
+        """第二个实例（双击桌面快捷方式）唤醒已运行的窗口。"""
+        self.window.show_centered()
+        log.info("activated by another instance")
+
     def _toggle_window(self) -> None:
         if self.window.isVisible():
             self.window.hide()
