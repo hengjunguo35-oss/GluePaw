@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import ctypes
 import logging
+import os
 import sys
 
 from PySide6.QtCore import QObject, QTimer, Qt
@@ -60,7 +61,17 @@ def _has_private_flag() -> bool:
     return False
 
 
+def _asset_path(name: str) -> str:
+    """打包后从 _MEIPASS/assets 读取，开发时从项目根目录读取。"""
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, "assets", name)
+
+
 def _make_icon() -> QIcon:
+    path = _asset_path("GluePaw.png")
+    if os.path.isfile(path):
+        return QIcon(path)
+    # 兜底：资源缺失时用代码画的剪贴板图标
     pixmap = QPixmap(64, 64)
     pixmap.fill(Qt.transparent)
     painter = QPainter(pixmap)
@@ -79,6 +90,7 @@ class Vault(QObject):
     def __init__(self, qapp: QApplication) -> None:
         super().__init__()
         self.qapp = qapp
+        self.qapp.setWindowIcon(_make_icon())
         self._suppress = False
 
         master = load_or_create_master_key(config.KEY_PATH)
@@ -95,6 +107,7 @@ class Vault(QObject):
         self.qapp.setStyleSheet(theme.qss(self._dark))
 
         self.window = MainWindow(self.repo, self.pal, pinned=self.repo.pin_on_top)
+        self.window.setWindowIcon(self.qapp.windowIcon())
         self.window.copy_requested.connect(self._copy_item)
         self.window.favorite_requested.connect(self._toggle_favorite)
         self.window.sensitivity_requested.connect(self._toggle_sensitivity)

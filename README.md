@@ -1,5 +1,7 @@
 # GluePaw
 
+<img src="assets/GluePaw.png" width="96" alt="GluePaw 图标">
+
 > 本地加密、隐私优先的剪贴板历史管理器（Windows 优先）
 
 GluePaw 会记录你复制过的文本，按天分组展示，支持搜索、收藏、一键复制和多选删除。
