@@ -177,6 +177,7 @@ GluePaw-OpenSource/
 架构与数据模型的详细说明见 [docs/TECHNICAL.md](docs/TECHNICAL.md)
 （English: [docs/TECHNICAL.en.md](docs/TECHNICAL.en.md)，由 AI 翻译）。
 隐私设计见 [docs/PRIVACY.md](docs/PRIVACY.md)。
+安全策略与依赖审计结果见 [SECURITY.md](SECURITY.md)。
 
 ## 测试
 
