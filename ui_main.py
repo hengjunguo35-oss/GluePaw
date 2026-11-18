@@ -129,7 +129,10 @@ class ClipCard(QFrame):
         self.preview.setWordWrap(True)
         self.preview.setTextFormat(Qt.PlainText)
         self.preview.setMaximumHeight(56)
-        self.preview.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        # Ignored：不让超长且无空格的文本（长 URL / 哈希）撑宽卡片，
+        # 否则卡片会被撑到上千像素，把右侧按钮挤到窗口外。
+        self.preview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.preview.setMinimumWidth(0)
         column.addWidget(self.preview)
 
         row = QHBoxLayout()
