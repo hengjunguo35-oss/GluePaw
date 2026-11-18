@@ -32,7 +32,7 @@ Then double-click the installer. If it still warns when run, right-click it and 
 "Run as administrator". If SmartScreen appears during setup, click "More info" → "Run anyway".
 
 > Verify the download with `SHA256SUMS.txt`:
-> `certutil -hashfile GluePaw-1.0.3-Setup.exe SHA256` (built into Windows).
+> `certutil -hashfile GluePaw-1.0.4-Setup.exe SHA256` (built into Windows).
 
 ## 1. Overview
 
@@ -81,8 +81,8 @@ service, no network, no inter-process communication.
 
 | File | Responsibility | Key points |
 | --- | --- | --- |
-| `main.py` | Entry point | single-instance lock, logging, initial theme |
-| `app.py` | Wiring and scheduling | clipboard listener, tray, hotkey polling, cleanup timers |
+| `main.py` | Entry point | single-instance lock + wake-up channel, logging, initial theme |
+| `app.py` | Wiring and scheduling | clipboard listener, tray, hotkey polling, cleanup timers, instance activation |
 | `config.py` | Paths and defaults | `%LOCALAPPDATA%\GluePaw` |
 | `vaultcrypto.py` | Cryptography | DPAPI-protected master key, Fernet, blind index |
 | `store.py` | Persistence | schema, deduplicating upsert, retention purge |
@@ -90,10 +90,11 @@ service, no network, no inter-process communication.
 | `repository.py` | Business state machine | every privacy rule lives here |
 | `sensitive.py` | Content classification | three-level verdict + Luhn / ID checksum |
 | `hotkey_win.py` | Global hotkey | dedicated thread + message loop + queue |
+| `autostart.py` | Launch at login | reads/writes the HKCU Run key (mirrored in Windows Settings) |
 | `theme.py` | Theming | two palettes + `@token` QSS template |
 | `icons.py` | Icons | all drawn with QPainter, no emoji dependency |
 | `ui_main.py` | Main window | cards, multi-select, pinning, search highlighting |
-| `ui_settings.py` | Settings page | privacy, cleanup, appearance |
+| `ui_settings.py` | Settings page | privacy, cleanup, appearance, launch at login |
 
 ## 4. Data model
 
@@ -193,6 +194,8 @@ MainWindow (QWidget, frameless, 9:16)
 ### ClipCard
 
 - Layout: the preview text occupies its own row; the second row holds status and actions.
+- Width: the preview label uses the `Ignored` size policy so a long URL / hash cannot
+  widen the card and push the action buttons (Copy, etc.) outside the window.
 - Rich text: while searching, matched fragments are wrapped in `<span>` with a highlight
   background; masked items are never rendered as rich text.
 - Shadow: `QGraphicsDropShadowEffect`, color follows the theme.
@@ -276,5 +279,43 @@ This preserves the privacy boundary and keeps token cost low.
 - The hotkey thread relies on `PostThreadMessage` to exit; in rare cases a thread may linger.
 - `setWindowFlags` recreates the window and may cause a slight flicker.
 - With very many cards (near 300), shadows and rich text slow rendering down.
-- No crash-recovery test for `instance.lock`.
+- No crash-recovery test for the single-instance wake-up channel (`QLocalServer`).
 - Platform checks are scattered across modules; extracting a `platform/` package would help.
+
+## 14. Build and release
+
+### Version
+
+- `APP_VERSION` in `config.py`
+- `AppVersion` and the installer window title in `installer/Setup.cs`
+
+### Package (onedir)
+
+```bat
+pyinstaller --noconfirm --clean --onedir --windowed ^
+  --icon assets\GluePaw.ico --add-data "assets;assets" ^
+  --name GluePaw main.py
+```
+
+The onedir build is used instead of a one-file build: the app runs directly from its
+install directory and does not unpack into `%TEMP%` on every launch.
+
+### Installer
+
+`installer/Setup.cs` is a native C# / WinForms installer wizard. The onedir build is
+compressed into `payload.zip`, embedded as a resource, and extracted straight into the
+install directory — again without relying on the temp folder.
+
+```bat
+installer\build_setup.cmd
+```
+
+### Artifacts
+
+- `dist\GluePaw-<ver>-Setup.exe`
+- `dist\GluePaw-<ver>-Windows-x64.zip`
+- `SHA256SUMS.txt`
+
+### Publishing
+
+Tag `v<ver>` and upload the three files above to the GitHub Release.

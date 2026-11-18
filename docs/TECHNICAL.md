@@ -26,7 +26,7 @@ GluePaw 未购买代码签名证书，Chrome / Edge 和 Windows SmartScreen 会�
 安装过程中 SmartScreen 若再次拦截，点「更多信息」→「仍要运行」。
 
 > 也可以用 `SHA256SUMS.txt` 校验下载文件是否完整（Windows 自带命令）：
-> `certutil -hashfile GluePaw-1.0.3-Setup.exe SHA256`
+> `certutil -hashfile GluePaw-1.0.4-Setup.exe SHA256`
 
 ## 1. 概览
 
@@ -70,8 +70,8 @@ GluePaw 是一个 PySide6 桌面应用，由三部分组成：
 
 | 文件 | 职责 | 关键点 |
 | --- | --- | --- |
-| `main.py` | 入口 | 单实例锁、日志、初始主题 |
-| `app.py` | 装配与调度 | 剪贴板监听、托盘、热键轮询、定时清理 |
+| `main.py` | 入口 | 单实例锁 + 唤醒通道、日志、初始主题 |
+| `app.py` | 装配与调度 | 剪贴板监听、托盘、热键轮询、定时清理、单实例唤醒 |
 | `config.py` | 路径与默认值 | `%LOCALAPPDATA%\GluePaw` |
 | `vaultcrypto.py` | 加密 | DPAPI 保护主密钥、Fernet、盲索引 |
 | `store.py` | 持久化 | 建表、去重 upsert、定期清理 |
@@ -79,10 +79,11 @@ GluePaw 是一个 PySide6 桌面应用，由三部分组成：
 | `repository.py` | 业务状态机 | 全部隐私规则都在这里 |
 | `sensitive.py` | 内容识别 | 三级判定 + Luhn / 身份证校验 |
 | `hotkey_win.py` | 全局热键 | 独立线程 + 消息循环 + 队列 |
+| `autostart.py` | 开机自启 | 读写 HKCU Run 键，与系统设置联动 |
 | `theme.py` | 主题 | 双色板 + `@token` QSS 模板 |
 | `icons.py` | 图标 | 全部用 QPainter 绘制，不依赖 emoji |
 | `ui_main.py` | 主窗口 | 卡片、多选、置顶、搜索高亮 |
-| `ui_settings.py` | 设置页 | 隐私、清理、外观三块 |
+| `ui_settings.py` | 设置页 | 隐私、清理、外观、开机自启四块 |
 
 ## 4. 数据模型
 
@@ -176,6 +177,8 @@ MainWindow (QWidget, frameless, 9:16)
 ### 卡片 ClipCard
 
 - 布局：预览文字独占一行，第二行是「状态 + 操作按钮」
+- 宽度：预览标签使用 `Ignored` 尺寸策略，避免长 URL / 哈希把卡片撑宽、
+  把右侧「复制」等按钮挤出窗口
 - 富文本：搜索时用 `<span>` 给命中片段加底色；打码状态下不渲染富文本
 - 阴影：`QGraphicsDropShadowEffect`，颜色随主题
 - 多选模式：左侧出现复选框，点击卡片任意位置切换选中
@@ -253,5 +256,42 @@ Linux X11 可用 `pynput`，Wayland 需要走 `org.freedesktop.portal.GlobalShor
 - 全局热键线程在退出时依赖 `PostThreadMessage`，极端情况下可能残留线程
 - `setWindowFlags` 重建窗口时可能有轻微闪烁
 - 卡片数量很大时（接近 300）阴影与富文本渲染会变慢
-- 没有对 `instance.lock` 做崩溃恢复测试
+- 没有对单实例唤醒通道（`QLocalServer`）做异常 / 崩溃恢复测试
 - 平台判断散落在各处，值得抽一个 `platform/` 包
+
+## 14. 构建与发布
+
+### 版本号
+
+- `config.py` 的 `APP_VERSION`
+- `installer/Setup.cs` 的 `AppVersion` 与安装窗口标题
+
+### 打包（目录版）
+
+```bat
+pyinstaller --noconfirm --clean --onedir --windowed ^
+  --icon assets\GluePaw.ico --add-data "assets;assets" ^
+  --name GluePaw main.py
+```
+
+使用目录版（onedir）而不是单文件版：程序直接从安装目录运行，
+不需要在每次启动时解压到 `%TEMP%`。
+
+### 安装程序
+
+`installer/Setup.cs` 是一个 C# / WinForms 原生安装向导：安装程序把目录版压缩成
+`payload.zip` 作为嵌入资源，安装时直接解压到安装目录，同样不依赖临时目录。
+
+```bat
+installer\build_setup.cmd
+```
+
+### 产物
+
+- `dist\GluePaw-<ver>-Setup.exe`
+- `dist\GluePaw-<ver>-Windows-x64.zip`
+- `SHA256SUMS.txt`
+
+### 发布
+
+打 tag `v<ver>`，把以上三个文件上传到 GitHub Release。

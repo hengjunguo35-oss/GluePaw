@@ -65,13 +65,13 @@ GluePaw 的目标是：**记录得够用，泄露得够少**。
 ### 下载安装（推荐）
 
 到 [Releases](https://github.com/hengjunguo35-oss/GluePaw/releases) 下载
-`GluePaw-1.0.3-Setup.exe`，双击按向导安装，**无需安装 Python**。
+`GluePaw-1.0.4-Setup.exe`，双击按向导安装，**无需安装 Python**。
 
 - 默认装到 `%LOCALAPPDATA%\Programs\GluePaw`，不需要管理员权限
 - 自动创建开始菜单快捷方式，可在设置里勾选桌面快捷方式
 - 控制面板 / 设置里可以正常卸载（默认保留历史数据）
 
-不想安装也可以用绿色版 `GluePaw-1.0.3-Windows-x64.zip`，解压后双击 `GluePaw.exe`，不写注册表。
+不想安装也可以用绿色版 `GluePaw-1.0.4-Windows-x64.zip`，解压后双击 `GluePaw.exe`，不写注册表。
 
 > 首次运行若被 SmartScreen 拦截：点「更多信息」→「仍要运行」。程序未做代码签名。
 
@@ -145,7 +145,7 @@ python main.py
 ├── vault.db        # 加密数据库（WAL 模式）
 ├── key.bin         # 主密钥（Windows 上由 DPAPI 保护）
 ├── app.log         # 运行日志（不记录剪贴板内容）
-└── instance.lock   # 单实例锁
+└── instance.lock   # 单实例锁（再次启动会唤起已有窗口）
 ```
 
 > 你的剪贴板数据始终在本机，不会上传到任何服务器。
@@ -153,8 +153,8 @@ python main.py
 ## 项目结构
 
 ```
-GluePaw-OpenSource/
-├── main.py            # 入口：单实例、主题、应用启动
+GluePaw/
+├── main.py            # 入口：单实例 + 唤醒通道、主题、应用启动
 ├── app.py             # 装配层：剪贴板监听、托盘、热键、调度
 ├── config.py          # 路径与默认值
 ├── vaultcrypto.py     # 密钥管理 + Fernet 加密 + HMAC 盲索引
@@ -170,6 +170,10 @@ GluePaw-OpenSource/
 ├── ui_settings.py     # 设置页
 ├── selftest.py        # 核心逻辑自测（无需 GUI）
 ├── smoketest.py       # Qt 装配冒烟测试（offscreen）
+├── assets/            # 图标（PNG + ICO）
+├── installer/         # C# 安装程序源码与构建脚本
+├── docs/              # 技术文档 / 隐私设计
+├── SECURITY.md        # 安全策略与依赖审计
 ├── install.bat        # 安装依赖到 libs/
 └── run.bat            # 启动
 ```
@@ -196,13 +200,11 @@ python smoketest.py
 - Wayland 下无法在后台读取剪贴板，需要走桌面环境的 portal
 - 仅处理纯文本，图片 / HTML / 文件尚未支持
 - 尚未记录「来源程序」
-- 未实现开机自启
 - 未对 Windows 剪贴板写入「不进 Win+V」标记
 
 ## 路线图
 
 - [ ] 记录来源程序，提升敏感判定准确率
-- [ ] 开机自启
 - [ ] 图片 / 富文本支持
 - [ ] macOS / Linux 适配层
 - [ ] 可选：本地 AI 检索（见 docs/TECHNICAL.md 的扩展点）
